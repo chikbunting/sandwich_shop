@@ -14,28 +14,30 @@ class App extends StatelessWidget {
       title: 'Sandwich Shop App',
       home: Scaffold(
         appBar: AppBar(title: const Text('Sandwich Counter')),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 12.0, left: 12.0, right: 12.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Expanded(child: OrderCompactDisplay(3, 'BLT sandwich(es)')),
-                  SizedBox(width: 8),
-                  Expanded(child: OrderCompactDisplay(3, 'Club sandwich(es)')),
-                  SizedBox(width: 8),
-                  Expanded(child: OrderCompactDisplay(2, 'Veggie sandwich(es)')),
+        // The bit that you need to update starts from here
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const OrderItemDisplay(5, 'Footlong'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => print('Add button pressed!'),
+                    child: const Text('Add'),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: () => print('Remove button pressed!'),
+                    child: const Text('Remove'),
+                  ),
                 ],
               ),
-            ),
-            const Expanded(
-              child: Center(
-                child: OrderItemDisplay(5, 'Footlong'),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
+        // The bit that you need to update ends here
       ),
     );
   }
@@ -123,11 +125,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
   void _incrementCounter() {
     setState(() {
-      _counter++;
     });
   }
 
