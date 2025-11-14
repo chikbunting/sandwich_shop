@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 void main() {
   runApp(const App());
@@ -165,7 +166,18 @@ class _OrderScreenState extends State<OrderScreen> {
   int _quantity = 0;
   final TextEditingController _noteController = TextEditingController();
 
-  
+  void _increaseQuantity() {
+    if (_quantity < widget.maxQuantity) {
+      setState(() {
+        _quantity++;
+        // Temporary debug line (only in debug builds)
+        if (kDebugMode) {
+          debugPrint('Current quantity: $_quantity');
+        }
+      });
+    }
+  }
+
 
   void _decreaseQuantity() {
     if (_quantity > 0) {
@@ -209,13 +221,28 @@ class _OrderScreenState extends State<OrderScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(
+                ElevatedButton.icon(
                   onPressed: _increaseQuantity,
-                  child: const Text('Add'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add'),
                 ),
-                ElevatedButton(
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
                   onPressed: _decreaseQuantity,
-                  child: const Text('Remove'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                  icon: const Icon(Icons.remove),
+                  label: const Text('Remove'),
                 ),
               ],
             ),
