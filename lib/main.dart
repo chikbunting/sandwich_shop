@@ -8,6 +8,24 @@ const Map<SandwichSize, double> _priceMap = {
   SandwichSize.sixInch: 5.49,
 };
 
+class OrderItem {
+  final int quantity;
+  final String itemType;
+  final String? note;
+  final double unitPrice;
+  final DateTime createdAt;
+
+  OrderItem({
+    required this.quantity,
+    required this.itemType,
+    this.note,
+    required this.unitPrice,
+    required this.createdAt,
+  });
+
+  double get total => unitPrice * quantity;
+}
+
 void main() {
   runApp(const App());
 }
@@ -173,11 +191,30 @@ class _OrderScreenState extends State<OrderScreen> {
   int _quantity = 0;
   final TextEditingController _noteController = TextEditingController();
   SandwichSize _selectedSize = SandwichSize.footlong;
+  final List<OrderItem> _orders = [];
 
   String _sizeLabel(SandwichSize s) => s == SandwichSize.footlong ? 'Footlong' : 'Six-inch';
 
   double get _unitPrice => _priceMap[_selectedSize]!;
   double get _totalPrice => _unitPrice * _quantity;
+
+  double get _ordersTotal => _orders.fold(0.0, (sum, o) => sum + o.total);
+
+  void _handleAddOrder() {
+    if (_quantity <= 0) return;
+    final item = OrderItem(
+      quantity: _quantity,
+      itemType: _sizeLabel(_selectedSize),
+      note: _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
+      unitPrice: _unitPrice,
+      createdAt: DateTime.now(),
+    );
+    setState(() {
+      _orders.insert(0, item);
+      _quantity = 0;
+      _noteController.clear();
+    });
+  }
 
   void _increaseQuantity() {
     if (_quantity < widget.maxQuantity) {
@@ -210,9 +247,10 @@ class _OrderScreenState extends State<OrderScreen> {
       appBar: AppBar(
         title: const Text('Sandwich Counter'),
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(12.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
@@ -261,6 +299,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -291,7 +330,51 @@ class _OrderScreenState extends State<OrderScreen> {
                   icon: const Icon(Icons.remove),
                   label: const Text('Remove'),
                 ),
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
+                  onPressed: _quantity > 0 ? _handleAddOrder : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: Colors.blue.shade100,
+                    disabledForegroundColor: Colors.white70,
+                    textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                  icon: const Icon(Icons.shopping_cart),
+                  label: const Text('Add to Orders'),
+                ),
               ],
+            ),
+            const SizedBox(height: 12),
+            const Divider(),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Order history', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text('Grand total: \$${_ordersTotal.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: _orders.isEmpty
+                  ? const Center(child: Text('No orders yet'))
+                  : ListView.separated(
+                      itemCount: _orders.length,
+                      separatorBuilder: (_, __) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final o = _orders[index];
+                        return ListTile(
+                          title: Text('${o.quantity} x ${o.itemType} — \$${o.total.toStringAsFixed(2)}'),
+                          subtitle: o.note != null ? Text(o.note!) : null,
+                          trailing: Text('\$${o.unitPrice.toStringAsFixed(2)} ea'),
+                        );
+                      },
+                    ),
             ),
           ],
         ),
