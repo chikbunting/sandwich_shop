@@ -20,21 +20,36 @@ class App extends StatelessWidget {
 class OrderItemDisplay extends StatelessWidget {
   final String itemType;
   final int quantity;
+  final String? note;
 
-  const OrderItemDisplay(this.quantity, this.itemType, {super.key});
+  const OrderItemDisplay(this.quantity, this.itemType, {this.note, super.key});
 
   @override
   Widget build(BuildContext context) {
+    final sandwiches = List.filled(quantity, '🥪').join();
     return Container(
       width: 400,
       height: 200,
       color: Colors.blue,
       alignment: Alignment.center,
-      child: Text(
-        '$quantity $itemType sandwich(es): ${List.filled(quantity, '🥪').join()}',
-        style: const TextStyle(color: Colors.black, fontSize: 18),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '$quantity $itemType sandwich(es): $sandwiches',
+            style: const TextStyle(color: Colors.black, fontSize: 18),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (note != null && note!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Note: $note',
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+            ),
+          ]
+        ],
       ),
     );
   }
@@ -148,6 +163,7 @@ class OrderScreen extends StatefulWidget {
 
 class _OrderScreenState extends State<OrderScreen> {
   int _quantity = 0;
+  final TextEditingController _noteController = TextEditingController();
 
   void _increaseQuantity() {
     if (_quantity < widget.maxQuantity) {
@@ -159,6 +175,12 @@ class _OrderScreenState extends State<OrderScreen> {
     if (_quantity > 0) {
       setState(() => _quantity--);
     }
+  }
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
   }
 
   @override
@@ -174,6 +196,19 @@ class _OrderScreenState extends State<OrderScreen> {
             OrderItemDisplay(
               _quantity,
               'Footlong',
+              note: _noteController.text,
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: TextField(
+                controller: _noteController,
+                decoration: const InputDecoration(
+                  labelText: 'Notes',
+                  hintText: 'e.g., no onions, extra pickles',
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
