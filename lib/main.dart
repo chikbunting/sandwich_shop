@@ -37,7 +37,7 @@ class App extends StatelessWidget {
             ],
           ),
         ),
-        // The bit that you need to update ends here
+        // The bit that you need to update ends here./
       ),
     );
   }
