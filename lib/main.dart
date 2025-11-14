@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
 enum SandwichSize { footlong, sixInch }
+// Unit prices per sandwich size (USD)
+const Map<SandwichSize, double> _priceMap = {
+  SandwichSize.footlong: 8.99,
+  SandwichSize.sixInch: 5.49,
+};
 
 void main() {
   runApp(const App());
@@ -171,6 +176,9 @@ class _OrderScreenState extends State<OrderScreen> {
 
   String _sizeLabel(SandwichSize s) => s == SandwichSize.footlong ? 'Footlong' : 'Six-inch';
 
+  double get _unitPrice => _priceMap[_selectedSize]!;
+  double get _totalPrice => _unitPrice * _quantity;
+
   void _increaseQuantity() {
     if (_quantity < widget.maxQuantity) {
       setState(() {
@@ -238,6 +246,19 @@ class _OrderScreenState extends State<OrderScreen> {
                   hintText: 'e.g., no onions, extra pickles',
                 ),
                 onChanged: (_) => setState(() {}),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Price display
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Unit price: \$${_unitPrice.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16)),
+                  const SizedBox(height: 4),
+                  Text('Total: \$${_totalPrice.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                ],
               ),
             ),
             Row(
