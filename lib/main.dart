@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
+enum SandwichSize { footlong, sixInch }
+
 void main() {
   runApp(const App());
 }
@@ -165,6 +167,9 @@ class OrderScreen extends StatefulWidget {
 class _OrderScreenState extends State<OrderScreen> {
   int _quantity = 0;
   final TextEditingController _noteController = TextEditingController();
+  SandwichSize _selectedSize = SandwichSize.footlong;
+
+  String _sizeLabel(SandwichSize s) => s == SandwichSize.footlong ? 'Footlong' : 'Six-inch';
 
   void _increaseQuantity() {
     if (_quantity < widget.maxQuantity) {
@@ -201,9 +206,26 @@ class _OrderScreenState extends State<OrderScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+              child: SegmentedButton<SandwichSize>(
+                segments: const <ButtonSegment<SandwichSize>>[
+                  ButtonSegment<SandwichSize>(value: SandwichSize.footlong, label: Text('Footlong')),
+                  ButtonSegment<SandwichSize>(value: SandwichSize.sixInch, label: Text('Six-inch')),
+                ],
+                selected: <SandwichSize>{_selectedSize},
+                onSelectionChanged: (Set<SandwichSize> newSelection) {
+                  if (newSelection.isNotEmpty) {
+                    setState(() {
+                      _selectedSize = newSelection.first;
+                    });
+                  }
+                },
+              ),
+            ),
             OrderItemDisplay(
               _quantity,
-              'Footlong',
+              _sizeLabel(_selectedSize),
               note: _noteController.text,
             ),
             const SizedBox(height: 12),
