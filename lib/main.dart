@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:sandwich_shop/views/app_styles.dart';
+import 'package:sandwich_shop/repositories/order_repository.dart';
 
 enum SandwichSize { footlong, sixInch }
 // Unit prices per sandwich size (USD)
@@ -188,193 +190,141 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  int _quantity = 0;
-  final TextEditingController _noteController = TextEditingController();
-  SandwichSize _selectedSize = SandwichSize.footlong;
-  final List<OrderItem> _orders = [];
+  late final OrderRepository _orderRepository;
+  final TextEditingController _notesController = TextEditingController();
+  bool _isFootlong = true;
+  BreadType _selectedBreadType = BreadType.white;
 
-  String _sizeLabel(SandwichSize s) => s == SandwichSize.footlong ? 'Footlong' : 'Six-inch';
-
-  double get _unitPrice => _priceMap[_selectedSize]!;
-  double get _totalPrice => _unitPrice * _quantity;
-
-  double get _ordersTotal => _orders.fold(0.0, (sum, o) => sum + o.total);
-
-  void _handleAddOrder() {
-    if (_quantity <= 0) return;
-    final item = OrderItem(
-      quantity: _quantity,
-      itemType: _sizeLabel(_selectedSize),
-      note: _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
-      unitPrice: _unitPrice,
-      createdAt: DateTime.now(),
-    );
-    setState(() {
-      _orders.insert(0, item);
-      _quantity = 0;
-      _noteController.clear();
+  @override
+  void initState() {
+    super.initState();
+    _orderRepository = OrderRepository(maxQuantity: widget.maxQuantity);
+    _notesController.addListener(() {
+      setState(() {});
     });
-  }
-
-  void _increaseQuantity() {
-    if (_quantity < widget.maxQuantity) {
-      setState(() {
-        _quantity++;
-        // Temporary debug line (only in debug builds)
-        if (kDebugMode) {
-          debugPrint('Current quantity: $_quantity');
-        }
-      });
-    }
-  }
-
-
-  void _decreaseQuantity() {
-    if (_quantity > 0) {
-      setState(() => _quantity--);
-    }
   }
 
   @override
   void dispose() {
-    _noteController.dispose();
+    _notesController.dispose();
     super.dispose();
+  }
+
+  VoidCallback? _getIncreaseCallback() {
+    if (_orderRepository.canIncrement) {
+      return () => setState(_orderRepository.increment);
+    }
+    return null;
+  }
+
+  VoidCallback? _getDecreaseCallback() {
+    if (_orderRepository.canDecrement) {
+      return () => setState(_orderRepository.decrement);
+    }
+    return null;
+  }
+
+  void _onSandwichTypeChanged(bool value) {
+    setState(() => _isFootlong = value);
+  }
+
+  void _onBreadTypeSelected(BreadType? value) {
+    if (value != null) {
+      setState(() => _selectedBreadType = value);
+    }
+  }
+
+  List<DropdownMenuEntry<BreadType>> _buildDropdownEntries() {
+    List<DropdownMenuEntry<BreadType>> entries = [];
+    for (BreadType bread in BreadType.values) {
+      DropdownMenuEntry<BreadType> newEntry = DropdownMenuEntry<BreadType>(
+        value: bread,
+        label: bread.name,
+      );
+      entries.add(newEntry);
+    }
+    return entries;
   }
 
   @override
   Widget build(BuildContext context) {
+    String sandwichType = 'footlong';
+    if (!_isFootlong) {
+      sandwichType = 'six-inch';
+    }
+
+    String noteForDisplay;
+    if (_notesController.text.isEmpty) {
+      noteForDisplay = 'No notes added.';
+    } else {
+      noteForDisplay = _notesController.text;
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sandwich Counter'),
+        title: const Text(
+          'Sandwich Counter',
+          style: heading1,
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
+      body: Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-              child: SegmentedButton<SandwichSize>(
-                segments: const <ButtonSegment<SandwichSize>>[
-                  ButtonSegment<SandwichSize>(value: SandwichSize.footlong, label: Text('Footlong')),
-                  ButtonSegment<SandwichSize>(value: SandwichSize.sixInch, label: Text('Six-inch')),
-                ],
-                selected: <SandwichSize>{_selectedSize},
-                onSelectionChanged: (Set<SandwichSize> newSelection) {
-                  if (newSelection.isNotEmpty) {
-                    setState(() {
-                      _selectedSize = newSelection.first;
-                    });
-                  }
-                },
-              ),
-            ),
             OrderItemDisplay(
-              _quantity,
-              _sizeLabel(_selectedSize),
-              note: _noteController.text,
+              quantity: _orderRepository.quantity,
+              itemType: sandwichType,
+              breadType: _selectedBreadType,
+              orderNote: noteForDisplay,
             ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: TextField(
-                controller: _noteController,
-                decoration: const InputDecoration(
-                  labelText: 'Notes',
-                  hintText: 'e.g., no onions, extra pickles',
-                ),
-                onChanged: (_) => setState(() {}),
-              ),
-            ),
-            const SizedBox(height: 12),
-            // Price display
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Unit price: \$${_unitPrice.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16)),
-                  const SizedBox(height: 4),
-                  Text('Total: \$${_totalPrice.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton.icon(
-                  onPressed: _quantity < widget.maxQuantity ? _increaseQuantity : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.greenAccent,
-                    disabledForegroundColor: Colors.white70,
-                    textStyle: const TextStyle(fontWeight: FontWeight.bold),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add'),
+                const Text('six-inch', style: normalText),
+                Switch(
+                  value: _isFootlong,
+                  onChanged: _onSandwichTypeChanged,
                 ),
-                const SizedBox(width: 12),
-                ElevatedButton.icon(
-                  onPressed: _quantity > 0 ? _decreaseQuantity : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.redAccent.shade100,
-                    disabledForegroundColor: Colors.white70,
-                    textStyle: const TextStyle(fontWeight: FontWeight.bold),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                  icon: const Icon(Icons.remove),
-                  label: const Text('Remove'),
-                ),
-                const SizedBox(width: 12),
-                ElevatedButton.icon(
-                  onPressed: _quantity > 0 ? _handleAddOrder : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.blue.shade100,
-                    disabledForegroundColor: Colors.white70,
-                    textStyle: const TextStyle(fontWeight: FontWeight.bold),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                  icon: const Icon(Icons.shopping_cart),
-                  label: const Text('Add to Orders'),
-                ),
+                const Text('footlong', style: normalText),
               ],
             ),
-            const SizedBox(height: 12),
-            const Divider(),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
+            DropdownMenu<BreadType>(
+              textStyle: normalText,
+              initialSelection: _selectedBreadType,
+              onSelected: _onBreadTypeSelected,
+              dropdownMenuEntries: _buildDropdownEntries(),
+            ),
+            const SizedBox(height: 20),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Order history', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  Text('Grand total: \$${_ordersTotal.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                ],
+              padding: const EdgeInsets.all(40.0),
+              child: TextField(
+                key: const Key('notes_textfield'),
+                controller: _notesController,
+                decoration: const InputDecoration(
+                  labelText: 'Add a note (e.g., no onions)',
+                ),
               ),
             ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: _orders.isEmpty
-                  ? const Center(child: Text('No orders yet'))
-                  : ListView.separated(
-                      itemCount: _orders.length,
-                      separatorBuilder: (_, __) => const Divider(),
-                      itemBuilder: (context, index) {
-                        final o = _orders[index];
-                        return ListTile(
-                          title: Text('${o.quantity} x ${o.itemType} — \$${o.total.toStringAsFixed(2)}'),
-                          subtitle: o.note != null ? Text(o.note!) : null,
-                          trailing: Text('\$${o.unitPrice.toStringAsFixed(2)} ea'),
-                        );
-                      },
-                    ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                StyledButton(
+                  onPressed: _getIncreaseCallback(),
+                  icon: Icons.add,
+                  label: 'Add',
+                  backgroundColor: Colors.green,
+                ),
+                const SizedBox(width: 8),
+                StyledButton(
+                  onPressed: _getDecreaseCallback(),
+                  icon: Icons.remove,
+                  label: 'Remove',
+                  backgroundColor: Colors.red,
+                ),
+              ],
             ),
           ],
         ),
