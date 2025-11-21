@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/repositories/order_repository.dart';
 
 enum SandwichSize { footlong, sixInch }
 
 // Simple BreadType enum used by the refactored UI
-enum BreadType { white, wheat, rye }
-// Unit prices per sandwich size (USD)
-const Map<SandwichSize, double> _priceMap = {
-  SandwichSize.footlong: 8.99,
-  SandwichSize.sixInch: 5.49,
-};
+enum BreadType { white, wheat, wholemeal }
 
 class OrderItem {
   final int quantity;
