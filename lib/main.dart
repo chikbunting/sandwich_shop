@@ -4,6 +4,9 @@ import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/repositories/order_repository.dart';
 
 enum SandwichSize { footlong, sixInch }
+
+// Simple BreadType enum used by the refactored UI
+enum BreadType { white, wheat, rye }
 // Unit prices per sandwich size (USD)
 const Map<SandwichSize, double> _priceMap = {
   SandwichSize.footlong: 8.99,
@@ -46,11 +49,19 @@ class App extends StatelessWidget {
 }
 
 class OrderItemDisplay extends StatelessWidget {
-  final String itemType;
+  // Matches the named parameters used by the refactored _OrderScreenState
   final int quantity;
-  final String? note;
+  final String itemType;
+  final BreadType breadType;
+  final String orderNote;
 
-  const OrderItemDisplay(this.quantity, this.itemType, {this.note, super.key});
+  const OrderItemDisplay({
+    required this.quantity,
+    required this.itemType,
+    required this.breadType,
+    required this.orderNote,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -70,15 +81,45 @@ class OrderItemDisplay extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          if (note != null && note!.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              'Note: $note',
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-            ),
-          ]
+          const SizedBox(height: 6),
+          Text('Bread: ${breadType.name}', style: const TextStyle(color: Colors.black87, fontSize: 14)),
+          const SizedBox(height: 8),
+          Text(
+            orderNote.isEmpty ? 'No notes' : 'Note: $orderNote',
+            style: const TextStyle(color: Colors.white, fontSize: 14),
+          ),
         ],
       ),
+    );
+  }
+}
+
+// Lightweight StyledButton used by the example UI. Replace with your real implementation as needed.
+class StyledButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+  final IconData icon;
+  final String label;
+  final Color backgroundColor;
+
+  const StyledButton({
+    required this.onPressed,
+    required this.icon,
+    required this.label,
+    required this.backgroundColor,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      icon: Icon(icon),
+      label: Text(label),
     );
   }
 }
