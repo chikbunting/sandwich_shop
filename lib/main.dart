@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/models/cart.dart';
+import 'package:sandwich_shop/repositories/pricing_repository.dart';
 
 // (Sandwich and BreadType are defined in lib/models/sandwich.dart)
 
@@ -132,6 +133,7 @@ class OrderScreen extends StatefulWidget {
 class _OrderScreenState extends State<OrderScreen> {
   final Cart _cart = Cart();
   final TextEditingController _notesController = TextEditingController();
+  late final PricingRepository _pricingRepository;
 
   SandwichType _selectedSandwichType = SandwichType.veggieDelight;
   bool _isFootlong = true;
@@ -142,6 +144,8 @@ class _OrderScreenState extends State<OrderScreen> {
   @override
   void initState() {
     super.initState();
+    // Pricing: six-inch = £7, footlong = £11
+    _pricingRepository = PricingRepository(sixInchPrice: 7.0, footlongPrice: 11.0);
     _notesController.addListener(() {
       setState(() {});
     });
@@ -368,6 +372,15 @@ class _OrderScreenState extends State<OrderScreen> {
                     textAlign: TextAlign.center,
                   ),
                 ),
+              // Cart summary: number of items and total price
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Text(
+                  'Cart: ${_cart.totalQuantity} item(s) — £${_cart.totalPrice(_pricingRepository).toStringAsFixed(2)}',
+                  style: normalText,
+                  textAlign: TextAlign.center,
+                ),
+              ),
               const SizedBox(height: 20),
             ],
           ),

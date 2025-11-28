@@ -59,4 +59,29 @@ void main() {
     // Expect confirmation message to be shown
     expect(find.textContaining('Added'), findsOneWidget);
   });
+
+  testWidgets('updates cart summary when items added', (WidgetTester tester) async {
+    final binding = TestWidgetsFlutterBinding.ensureInitialized();
+    binding.window.physicalSizeTestValue = const Size(800, 1200);
+    binding.window.devicePixelRatioTestValue = 1.0;
+    addTearDown(() {
+      binding.window.clearPhysicalSizeTestValue();
+      binding.window.clearDevicePixelRatioTestValue();
+    });
+
+    await tester.pumpWidget(const App());
+
+    // Initially cart should be empty
+    expect(find.textContaining('Cart:'), findsOneWidget);
+    expect(find.textContaining('0 item'), findsOneWidget);
+    expect(find.textContaining('£0.00'), findsOneWidget);
+
+    // Add an item
+    await tester.tap(find.text('Add to Cart'));
+    await tester.pumpAndSettle();
+
+    // Now cart summary should reflect 1 item and price £11.00 (default footlong)
+    expect(find.textContaining('1 item'), findsOneWidget);
+    expect(find.textContaining('£11.00'), findsOneWidget);
+  });
 }
