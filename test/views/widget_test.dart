@@ -7,7 +7,7 @@ void main() {
       (WidgetTester tester) async {
     // Increase the test binding surface size to avoid RenderFlex overflow in
     // the default (small) test surface.
-    final binding = TestWidgetsFlutterBinding.ensureInitialized() as TestWidgetsFlutterBinding;
+  final binding = TestWidgetsFlutterBinding.ensureInitialized();
     binding.window.physicalSizeTestValue = const Size(800, 1200);
     binding.window.devicePixelRatioTestValue = 1.0;
     addTearDown(() {
@@ -36,5 +36,27 @@ void main() {
     await tester.pumpAndSettle();
     s = tester.widget<Switch>(switchFinder);
     expect(s.value, isTrue);
+  });
+
+  testWidgets('shows confirmation message when item added to cart',
+      (WidgetTester tester) async {
+    final binding = TestWidgetsFlutterBinding.ensureInitialized() as TestWidgetsFlutterBinding;
+    binding.window.physicalSizeTestValue = const Size(800, 1200);
+    binding.window.devicePixelRatioTestValue = 1.0;
+    addTearDown(() {
+      binding.window.clearPhysicalSizeTestValue();
+      binding.window.clearDevicePixelRatioTestValue();
+    });
+
+    await tester.pumpWidget(const App());
+
+    // Tap Add to Cart
+  final Finder addButtonText = find.text('Add to Cart');
+  expect(addButtonText, findsOneWidget);
+  await tester.tap(addButtonText);
+    await tester.pumpAndSettle();
+
+    // Expect confirmation message to be shown
+    expect(find.textContaining('Added'), findsOneWidget);
   });
 }
