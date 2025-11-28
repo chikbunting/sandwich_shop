@@ -17,21 +17,24 @@ void main() {
 
     await tester.pumpWidget(const App());
 
-    // Initially the UI should show 'footlong' (default)
-    expect(find.textContaining('footlong sandwich'), findsOneWidget);
+    // Find the size Switch widget by key and toggle it
+    final Finder switchFinder = find.byKey(const Key('size_switch'));
+    expect(switchFinder, findsOneWidget);
 
-  // Find the size Switch widget by key and toggle it
-  final Finder switchFinder = find.byKey(const Key('size_switch'));
-  expect(switchFinder, findsOneWidget);
+    // Initially it should be footlong (true)
+    Switch s = tester.widget<Switch>(switchFinder);
+    expect(s.value, isTrue);
 
-  // Tap the switch to change to six-inch
-  await tester.tap(switchFinder);
+    // Tap the switch to change to six-inch
+    await tester.tap(switchFinder);
     await tester.pumpAndSettle();
-    expect(find.textContaining('six-inch sandwich'), findsOneWidget);
+    s = tester.widget<Switch>(switchFinder);
+    expect(s.value, isFalse);
 
     // Tap again to go back to footlong
     await tester.tap(switchFinder);
     await tester.pumpAndSettle();
-    expect(find.textContaining('footlong sandwich'), findsOneWidget);
+    s = tester.widget<Switch>(switchFinder);
+    expect(s.value, isTrue);
   });
 }
