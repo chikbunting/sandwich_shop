@@ -324,6 +324,7 @@ class _OrderScreenState extends State<OrderScreen> {
               style: normalText,
             ),
             const SizedBox(height: 20),
+            // (Save-order UI removed during rollback)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -387,6 +388,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   label: 'Remove',
                   backgroundColor: Colors.red,
                 ),
+                // Save Order button removed during rollback
               ],
             ),
           ],
