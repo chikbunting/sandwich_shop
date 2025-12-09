@@ -8,10 +8,13 @@ import 'package:sandwich_shop/views/cart_screen.dart';
 import 'package:sandwich_shop/views/about_screen.dart';
 import 'package:sandwich_shop/views/profile_screen.dart';
 import 'package:sandwich_shop/views/main_drawer.dart';
+import 'package:sandwich_shop/views/settings_screen.dart';
 
 // (Sandwich and BreadType are defined in lib/models/sandwich.dart)
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppStyles.loadFontSize();
   runApp(const App());
 }
 
@@ -193,6 +196,15 @@ class _OrderScreenState extends State<OrderScreen> {
       });
       debugPrint(confirmationMessage);
     }
+  }
+
+  void _navigateToSettings() {
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => const SettingsScreen(),
+      ),
+    );
   }
 
   VoidCallback? _getAddToCartCallback() {
