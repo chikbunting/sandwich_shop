@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
+import 'package:sandwich_shop/views/common_widgets.dart';
 // Avoid importing main.dart to prevent circular imports; use plain ElevatedButton instead of StyledButton.
 
 class ProfileScreen extends StatefulWidget {
@@ -49,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Profile', style: heading1)),
+      appBar: PreferredAppBar(context, 'Profile'),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
