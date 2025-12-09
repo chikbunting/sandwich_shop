@@ -15,11 +15,10 @@ void main() {
     await tester.pumpWidget(const App());
     await tester.pumpAndSettle();
 
-    // Open the drawer via the menu icon
-    final Finder menuFinder = find.byTooltip('Open navigation menu');
-    expect(menuFinder, findsOneWidget);
-    await tester.tap(menuFinder);
-    await tester.pumpAndSettle();
+  // Open the drawer by dragging from the left edge (we use a custom AppBar
+  // leading so the automatic menu button may not be present).
+  await tester.dragFrom(const Offset(0, 300), const Offset(300, 0));
+  await tester.pumpAndSettle();
 
     // Tap the About item
     await tester.tap(find.text('About'));
