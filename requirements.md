@@ -102,3 +102,36 @@ Widget tests
 - Implementation patch modifying `lib/views/cart_screen.dart` (or creating it), `lib/main.dart` (navigation wiring if needed), and tests at `test/views/cart_screen_test.dart` and `test/models/cart_update_test.dart`.
 
 - Short notes describing any deviations or design trade-offs.
+
+## 8. Profile screen (new exercise)
+
+This file documents the requirements for a lightweight Profile screen used for the next worksheet exercise. The screen is intentionally simple — no authentication or persistence is required; it only demonstrates navigation, forms, and widget testing.
+
+Feature description
+
+- Provide a `ProfileScreen` where users can view and enter simple details: full name, email, and phone number. The screen includes a Save button that validates input minimally and shows a confirmation `SnackBar` when pressed.
+
+User stories
+
+- As a user, I want to open my profile screen from the `OrderScreen` so I can view or edit my contact details.
+- As a tester, I want widget tests that verify navigation to the profile screen and the presence of form fields and the save confirmation.
+
+Acceptance criteria
+
+1. The app includes a `ProfileScreen` at `lib/views/profile_screen.dart`.
+2. `OrderScreen` contains a link or button at the bottom that navigates to `ProfileScreen` via `Navigator.push`.
+3. `ProfileScreen` shows three `TextField` widgets with labels/placeholders: `Full name`, `Email`, and `Phone`.
+4. `ProfileScreen` shows a `Save` button. When pressed with non-empty `Full name` and a non-empty `Email`, the screen shows a `SnackBar` with text containing `Profile saved` and does not crash.
+5. No persistence is required; entered values can be discarded when navigating back.
+
+Tests
+
+- `test/views/profile_screen_test.dart`:
+  - `testWidgets('navigates to profile and shows fields', ...)` — pump the app, tap the profile navigation control, assert that `Full name`, `Email`, and `Phone` fields and the `Save` button are present.
+  - `testWidgets('saves profile and shows snackbar', ...)` — navigate to profile, enter valid values for required fields, tap `Save`, and assert that a `SnackBar` with `Profile saved` is shown.
+
+Notes
+
+- Keep implementations simple and UI-focused. Use existing `StyledButton` where convenient for visual consistency.
+- Add minimal validation: require non-empty name and email. If validation fails, show a red `SnackBar` with an error message.
+

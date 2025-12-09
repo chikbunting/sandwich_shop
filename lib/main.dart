@@ -5,6 +5,7 @@ import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
 import 'package:sandwich_shop/views/cart_screen.dart';
 import 'package:sandwich_shop/views/about_screen.dart';
+import 'package:sandwich_shop/views/profile_screen.dart';
 
 // (Sandwich and BreadType are defined in lib/models/sandwich.dart)
 
@@ -401,6 +402,20 @@ class _OrderScreenState extends State<OrderScreen> {
                 ),
               ),
               const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: StyledButton(
+                  onPressed: () async {
+                    await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const ProfileScreen(),
+                    ));
+                    setState(() {});
+                  },
+                  icon: Icons.person,
+                  label: 'Profile',
+                  backgroundColor: Colors.grey,
+                ),
+              ),
             ],
           ),
         ),
