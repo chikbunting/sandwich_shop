@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/views/common_widgets.dart';
 // Avoid importing main.dart to prevent circular imports; use plain ElevatedButton instead of StyledButton.
 

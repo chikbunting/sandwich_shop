@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
+import 'package:sandwich_shop/views/common_widgets.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
 import 'package:provider/provider.dart';
@@ -66,9 +67,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final List<CartItem> items = widget.cart.items;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Checkout', style: heading1),
-      ),
+      appBar: PreferredAppBar(context, 'Checkout'),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Column(

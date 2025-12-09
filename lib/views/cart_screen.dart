@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
+import 'package:sandwich_shop/views/common_widgets.dart';
 import 'package:sandwich_shop/views/checkout_screen.dart';
 import 'package:sandwich_shop/main.dart';
 
@@ -79,9 +80,7 @@ class _CartScreenState extends State<CartScreen> {
     final subtotal = widget.cart.totalPrice(widget.pricing);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Your Cart', style: heading1),
-      ),
+      appBar: PreferredAppBar(context, 'Your Cart'),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
