@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
 
@@ -16,7 +17,7 @@ class CartItem {
 /// Cart holds multiple CartItem entries and provides operations a user would
 /// expect when managing a food-order cart: add, remove, update quantity, and
 /// computing totals using the PricingRepository.
-class Cart {
+class Cart extends ChangeNotifier {
   final List<CartItem> _items = [];
 
   List<CartItem> get items => List.unmodifiable(_items);
@@ -35,11 +36,13 @@ class Cart {
     } else {
       _items.add(CartItem(sandwich: sandwich, quantity: quantity));
     }
+    notifyListeners();
   }
 
   /// Remove an item completely from the cart (regardless of quantity).
   void remove(Sandwich sandwich) {
     _items.removeWhere((it) => _sameSandwich(it.sandwich, sandwich));
+    notifyListeners();
   }
 
   /// Update the quantity for a sandwich. If newQuantity <= 0 the item is removed.
@@ -50,6 +53,7 @@ class Cart {
       remove(sandwich);
     } else {
       existing.quantity = newQuantity;
+      notifyListeners();
     }
   }
 
