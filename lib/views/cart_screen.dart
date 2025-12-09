@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
+import 'package:sandwich_shop/views/checkout_screen.dart';
 
 class CartScreen extends StatefulWidget {
   final Cart cart;
@@ -104,7 +105,26 @@ class _CartScreenState extends State<CartScreen> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: null, // non-functional for exercise
+                    onPressed: widget.cart.items.isEmpty
+                        ? null
+                        : () async {
+                            final result = await Navigator.push<Map<String, dynamic>>(
+                              context,
+                              MaterialPageRoute<Map<String, dynamic>>(
+                                builder: (BuildContext context) =>
+                                    // Pass pricing through so CheckoutScreen can compute totals
+                                    CheckoutScreen(cart: widget.cart, pricing: widget.pricing),
+                              ),
+                            );
+
+                            if (result != null && mounted) {
+                              final id = result['orderId'] ?? 'Unknown';
+                              final total = result['totalAmount'];
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Order $id placed — £${(total ?? 0).toStringAsFixed(2)}')),
+                              );
+                            }
+                          },
                     child: const Text('Checkout'),
                   ),
                 ),
