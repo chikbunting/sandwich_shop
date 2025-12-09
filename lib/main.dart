@@ -10,6 +10,7 @@ import 'package:sandwich_shop/views/profile_screen.dart';
 import 'package:sandwich_shop/views/main_drawer.dart';
 import 'package:sandwich_shop/views/settings_screen.dart';
 import 'package:sandwich_shop/views/order_history_screen.dart';
+import 'package:sandwich_shop/views/common_widgets.dart';
 
 // (Sandwich and BreadType are defined in lib/models/sandwich.dart)
 
@@ -305,21 +306,7 @@ class _OrderScreenState extends State<OrderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: SizedBox(
-          height: 100,
-          width: 56,
-          child: Image.asset(
-            'assets/images/logo.png',
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
-          ),
-        ),
-        title: Text(
-          'Sandwich Counter',
-          style: heading1,
-        ),
-      ),
+      appBar: PreferredAppBar(context, 'Sandwich Counter', pricing: _pricingRepository),
       drawer: const MainDrawer(),
       body: Center(
         child: SingleChildScrollView(
