@@ -12,4 +12,9 @@ class PricingRepository {
     if (quantity <= 0) return 0.0;
     return unitPrice(isFootlong: isFootlong) * quantity;
   }
+
+  /// Backwards-compatible helper used in some places as `calculatePrice`.
+  double calculatePrice({required int quantity, required bool isFootlong}) {
+    return totalFor(quantity: quantity, isFootlong: isFootlong);
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sandwich_shop/views/profile_screen.dart';
 import 'package:sandwich_shop/views/cart_screen.dart';
 import 'package:sandwich_shop/models/cart.dart';
@@ -7,10 +8,7 @@ import 'package:sandwich_shop/repositories/pricing_repository.dart';
 /// A reusable Drawer used across the app. Keep navigation logic here so it's
 /// easy to update in one place.
 class MainDrawer extends StatelessWidget {
-  final Cart? cart;
-  final PricingRepository? pricing;
-
-  const MainDrawer({super.key, this.cart, this.pricing});
+  const MainDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +32,9 @@ class MainDrawer extends StatelessWidget {
             title: const Text('Cart'),
             onTap: () {
               Navigator.pop(context);
-              if (cart != null && pricing != null) {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => CartScreen(cart: cart!, pricing: pricing!)));
-              } else {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => CartScreen(cart: Cart(), pricing: PricingRepository(sixInchPrice: 7.0, footlongPrice: 11.0))));
-              }
+              final cart = Provider.of<Cart>(context, listen: false);
+              final pricing = PricingRepository(sixInchPrice: 7.0, footlongPrice: 11.0);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => CartScreen(cart: cart, pricing: pricing)));
             },
           ),
           ListTile(

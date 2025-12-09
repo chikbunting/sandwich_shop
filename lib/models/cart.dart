@@ -2,87 +2,97 @@ import 'package:flutter/foundation.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
 
-/// A simple cart item that pairs a Sandwich with a quantity.
+/// A small immutable view of a sandwich in the cart and its quantity. This
+/// keeps compatibility with existing code that expects `CartItem` objects.
 class CartItem {
   final Sandwich sandwich;
-  int quantity;
+  final int quantity;
 
-  CartItem({required this.sandwich, this.quantity = 1}) : assert(quantity >= 0);
+  CartItem({required this.sandwich, required this.quantity}) : assert(quantity >= 0);
 
   double totalPrice(PricingRepository pricing) {
     return pricing.totalFor(quantity: quantity, isFootlong: sandwich.isFootlong);
   }
 }
 
-/// Cart holds multiple CartItem entries and provides operations a user would
-/// expect when managing a food-order cart: add, remove, update quantity, and
-/// computing totals using the PricingRepository.
+/// Cart backed by a Map<Sandwich,int> while exposing a few compat helpers so
+/// existing UI code doesn't need to be rewritten all at once.
 class Cart extends ChangeNotifier {
-  final List<CartItem> _items = [];
+  final Map<Sandwich, int> _items = {};
 
-  List<CartItem> get items => List.unmodifiable(_items);
+  /// Returns an unmodifiable map view of items.
+  Map<Sandwich, int> get itemsMap => Map.unmodifiable(_items);
+
+  /// Compatibility: returns a list of CartItem objects for existing UI.
+  List<CartItem> get items => _items.entries
+      .map((e) => CartItem(sandwich: e.key, quantity: e.value))
+      .toList(growable: false);
 
   bool get isEmpty => _items.isEmpty;
-  int get distinctItemCount => _items.length;
-  int get totalQuantity => _items.fold(0, (p, e) => p + e.quantity);
+  int get length => _items.length;
 
-  /// Adds [quantity] of [sandwich] to the cart. If an equivalent sandwich
-  /// already exists (same type, size, bread), the quantities are merged.
+  /// Total quantity of all sandwiches in the cart.
+  int get totalQuantity => _items.values.fold(0, (p, q) => p + q);
+
+  /// Adds a sandwich by quantity (merging with existing entries).
   void add(Sandwich sandwich, {int quantity = 1}) {
     if (quantity <= 0) return;
-    final existing = _findItem(sandwich);
-    if (existing != null) {
-      existing.quantity += quantity;
+    _items.update(sandwich, (v) => v + quantity, ifAbsent: () => quantity);
+    notifyListeners();
+  }
+
+  /// Removes up to [quantity] of the sandwich; removes key if quantity goes to 0.
+  void remove(Sandwich sandwich, {int quantity = 1}) {
+    if (!_items.containsKey(sandwich)) return;
+    final current = _items[sandwich]!;
+    if (current > quantity) {
+      _items[sandwich] = current - quantity;
     } else {
-      _items.add(CartItem(sandwich: sandwich, quantity: quantity));
+      _items.remove(sandwich);
     }
     notifyListeners();
   }
 
-  /// Remove an item completely from the cart (regardless of quantity).
-  void remove(Sandwich sandwich) {
-    _items.removeWhere((it) => _sameSandwich(it.sandwich, sandwich));
-    notifyListeners();
-  }
-
-  /// Update the quantity for a sandwich. If newQuantity <= 0 the item is removed.
+  /// Sets the absolute quantity for a sandwich (compat for updateQuantity).
   void updateQuantity(Sandwich sandwich, int newQuantity) {
-    final existing = _findItem(sandwich);
-    if (existing == null) return;
     if (newQuantity <= 0) {
-      remove(sandwich);
+      _items.remove(sandwich);
     } else {
-      existing.quantity = newQuantity;
-      notifyListeners();
+      _items[sandwich] = newQuantity;
     }
+    notifyListeners();
   }
 
-  /// Returns the quantity for a given sandwich (0 if not present).
-  int quantityFor(Sandwich sandwich) {
-    final existing = _findItem(sandwich);
-    return existing?.quantity ?? 0;
+  /// Clears the cart.
+  void clear() {
+    _items.clear();
+    notifyListeners();
   }
 
-  /// Clears all items from the cart.
-  void clear() => _items.clear();
-
-  /// Calculates the total price for all items using [pricing]
-  double totalPrice(PricingRepository pricing) {
+  /// Compatibility getter: total price using a provided PricingRepository.
+  double totalPriceUsing(PricingRepository pricing) {
     double total = 0.0;
-    for (final it in _items) {
-      total += it.totalPrice(pricing);
-    }
+    _items.forEach((sandwich, qty) {
+      total += pricing.totalFor(quantity: qty, isFootlong: sandwich.isFootlong);
+    });
     return total;
   }
 
-  CartItem? _findItem(Sandwich sandwich) {
-    for (final it in _items) {
-      if (_sameSandwich(it.sandwich, sandwich)) return it;
-    }
-    return null;
+  /// Calculates total price using the supplied [pricing] repository.
+  double totalPrice(PricingRepository pricing) {
+    double total = 0.0;
+    _items.forEach((sandwich, qty) {
+      total += pricing.totalFor(quantity: qty, isFootlong: sandwich.isFootlong);
+    });
+    return total;
   }
 
-  bool _sameSandwich(Sandwich a, Sandwich b) {
-    return a.type == b.type && a.isFootlong == b.isFootlong && a.breadType == b.breadType;
-  }
+  /// Number of distinct sandwich types in cart.
+  int get distinctItemCount => _items.length;
+
+  /// Total number of individual sandwiches (sum of quantities).
+  int get countOfItems => totalQuantity;
+
+  /// Get quantity for a specific sandwich.
+  int getQuantity(Sandwich sandwich) => _items[sandwich] ?? 0;
 }

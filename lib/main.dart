@@ -3,6 +3,7 @@ import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
+import 'package:provider/provider.dart';
 import 'package:sandwich_shop/views/cart_screen.dart';
 import 'package:sandwich_shop/views/about_screen.dart';
 import 'package:sandwich_shop/views/profile_screen.dart';
@@ -20,12 +21,15 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Sandwich Shop App',
-      home: const OrderScreen(maxQuantity: 5),
-      routes: {
-        '/about': (context) => const AboutScreen(),
-      },
+    return ChangeNotifierProvider(
+      create: (_) => Cart(),
+      child: MaterialApp(
+        title: 'Sandwich Shop App',
+        home: const OrderScreen(maxQuantity: 5),
+        routes: {
+          '/about': (context) => const AboutScreen(),
+        },
+      ),
     );
   }
 }
@@ -138,7 +142,6 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  final Cart _cart = Cart();
   final TextEditingController _notesController = TextEditingController();
   late final PricingRepository _pricingRepository;
 
@@ -172,9 +175,9 @@ class _OrderScreenState extends State<OrderScreen> {
         breadType: _selectedBreadType,
       );
 
-      setState(() {
-        _cart.add(sandwich, quantity: _quantity);
-      });
+        // Add to the provider-backed cart
+        final cart = Provider.of<Cart>(context, listen: false);
+        cart.add(sandwich, quantity: _quantity);
 
       String sizeText;
       if (_isFootlong) {
@@ -295,7 +298,7 @@ class _OrderScreenState extends State<OrderScreen> {
           style: heading1,
         ),
       ),
-      drawer: MainDrawer(cart: _cart, pricing: _pricingRepository),
+      drawer: const MainDrawer(),
       body: Center(
         child: SingleChildScrollView(
           child: Column(
@@ -384,7 +387,7 @@ class _OrderScreenState extends State<OrderScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Text(
-                  'Cart: ${_cart.totalQuantity} item(s) — £${_cart.totalPrice(_pricingRepository).toStringAsFixed(2)}',
+                  'Cart: ${Provider.of<Cart>(context).totalQuantity} item(s) — £${Provider.of<Cart>(context).totalPrice(_pricingRepository).toStringAsFixed(2)}',
                   style: normalText,
                   textAlign: TextAlign.center,
                 ),
@@ -393,8 +396,9 @@ class _OrderScreenState extends State<OrderScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: StyledButton(
                   onPressed: () async {
+                    final cart = Provider.of<Cart>(context, listen: false);
                     await Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => CartScreen(cart: _cart, pricing: _pricingRepository),
+                      builder: (_) => CartScreen(cart: cart, pricing: _pricingRepository),
                     ));
                     setState(() {});
                   },
