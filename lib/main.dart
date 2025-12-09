@@ -3,6 +3,7 @@ import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
+import 'package:sandwich_shop/views/cart_screen.dart';
 
 // (Sandwich and BreadType are defined in lib/models/sandwich.dart)
 
@@ -379,6 +380,20 @@ class _OrderScreenState extends State<OrderScreen> {
                   'Cart: ${_cart.totalQuantity} item(s) — £${_cart.totalPrice(_pricingRepository).toStringAsFixed(2)}',
                   style: normalText,
                   textAlign: TextAlign.center,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: StyledButton(
+                  onPressed: () async {
+                    await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => CartScreen(cart: _cart, pricing: _pricingRepository),
+                    ));
+                    setState(() {});
+                  },
+                  icon: Icons.shopping_cart,
+                  label: 'View Cart',
+                  backgroundColor: Colors.blue,
                 ),
               ),
               const SizedBox(height: 20),
