@@ -135,3 +135,26 @@ Notes
 - Keep implementations simple and UI-focused. Use existing `StyledButton` where convenient for visual consistency.
 - Add minimal validation: require non-empty name and email. If validation fails, show a red `SnackBar` with an error message.
 
+## 9. Navigation Drawer (new exercise)
+
+Feature description
+
+- Add a reusable navigation Drawer accessible from the app's main screens. The Drawer should centralize navigation and reduce duplicated nav code across screens.
+
+Requirements
+
+1. Add a `MainDrawer` widget at `lib/views/main_drawer.dart` that contains navigation options: Order (home), Cart, Profile, About.
+2. Attach the Drawer to the `OrderScreen` Scaffold. For other screens, either attach the same Drawer or provide a consistent navigation affordance (AppBar leading automatically shows the drawer icon when a drawer is present).
+3. Where possible, centralize navigation code in `MainDrawer` to avoid repeating ListTile definitions across screens.
+4. For the extra challenge: make navigation responsive — on wide screens show a persistent side rail (NavigationRail) and on narrow screens use the Drawer. If implementing the responsive layout is too invasive, document the approach and implement the Drawer first.
+
+Tests
+
+- Add `test/views/navigation_drawer_test.dart`:
+  - `testWidgets('opens drawer and navigates to about', ...)` — pump the app, open the drawer, tap About, and assert the About screen content is visible.
+
+Notes
+
+- Prefer centralizing future route definitions in `main.dart` via `routes` or `onGenerateRoute` so `MainDrawer` can use named routes instead of creating `MaterialPageRoute` instances with widgets (reduces coupling between drawer and screen implementation details).
+
+

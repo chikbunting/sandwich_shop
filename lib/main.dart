@@ -6,6 +6,7 @@ import 'package:sandwich_shop/repositories/pricing_repository.dart';
 import 'package:sandwich_shop/views/cart_screen.dart';
 import 'package:sandwich_shop/views/about_screen.dart';
 import 'package:sandwich_shop/views/profile_screen.dart';
+import 'package:sandwich_shop/views/main_drawer.dart';
 
 // (Sandwich and BreadType are defined in lib/models/sandwich.dart)
 
@@ -294,6 +295,7 @@ class _OrderScreenState extends State<OrderScreen> {
           style: heading1,
         ),
       ),
+      drawer: MainDrawer(cart: _cart, pricing: _pricingRepository),
       body: Center(
         child: SingleChildScrollView(
           child: Column(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
-import 'package:sandwich_shop/main.dart';
+// Avoid importing main.dart to prevent circular imports; use plain ElevatedButton instead of StyledButton.
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -77,11 +77,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 20),
-              StyledButton(
+              ElevatedButton.icon(
                 onPressed: _saveProfile,
-                icon: Icons.save,
-                label: 'Save',
-                backgroundColor: Colors.green,
+                icon: const Icon(Icons.save),
+                label: const Text('Save'),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
               ),
             ],
           ),
