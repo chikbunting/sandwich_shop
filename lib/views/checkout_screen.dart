@@ -53,16 +53,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Checkout', style: heading1),
+        title: Text('Checkout', style: heading1),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Column(
           children: [
-                const Text('Order Summary', style: heading1),
+                Text('Order Summary', style: heading1),
             const SizedBox(height: 20),
             if (items.isEmpty)
-              const Text('Your cart is empty', style: normalText)
+              Text('Your cart is empty', style: normalText)
             else
               Expanded(
                 child: ListView.separated(
@@ -87,7 +87,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                    const Text('Total:', style: heading1),
+                    Text('Total:', style: heading1),
                     Text('£${widget.cart.totalPrice(widget.pricing).toStringAsFixed(2)}', style: heading1),
               ],
             ),
@@ -97,7 +97,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             else
               ElevatedButton(
                 onPressed: widget.cart.isEmpty ? null : _processPayment,
-                child: const Text('Confirm Payment', style: normalText),
+                child: Text('Confirm Payment', style: normalText),
               ),
           ],
         ),

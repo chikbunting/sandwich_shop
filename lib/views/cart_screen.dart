@@ -80,14 +80,14 @@ class _CartScreenState extends State<CartScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your Cart', style: heading1),
+        title: Text('Your Cart', style: heading1),
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
             if (items.isEmpty)
-              const Expanded(
+              Expanded(
                 child: Center(child: Text('Your cart is empty', style: normalText)),
               )
             else
