@@ -3,6 +3,7 @@ import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/views/checkout_screen.dart';
+import 'package:sandwich_shop/main.dart';
 
 class CartScreen extends StatefulWidget {
   final Cart cart;
@@ -32,6 +33,44 @@ class _CartScreenState extends State<CartScreen> {
     final item = widget.cart.items[index];
     widget.cart.remove(item.sandwich);
     setState(() {});
+  }
+
+  Future<void> _navigateToCheckout() async {
+    if (widget.cart.items.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Your cart is empty'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute<Map<String, dynamic>>(
+        builder: (context) => CheckoutScreen(cart: widget.cart, pricing: widget.pricing),
+      ),
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        widget.cart.clear();
+      });
+
+      final String orderId = result['orderId'] as String? ?? 'Unknown';
+      final String estimatedTime = result['estimatedTime'] as String? ?? '';
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Order $orderId confirmed! Estimated time: $estimatedTime'),
+          duration: const Duration(seconds: 4),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -101,34 +140,25 @@ class _CartScreenState extends State<CartScreen> {
               ],
             ),
             const SizedBox(height: 12),
+            const SizedBox(height: 20),
+            Builder(
+              builder: (BuildContext context) {
+                final bool cartHasItems = widget.cart.items.isNotEmpty;
+                if (cartHasItems) {
+                  return StyledButton(
+                    onPressed: _navigateToCheckout,
+                    icon: Icons.payment,
+                    label: 'Checkout',
+                    backgroundColor: Colors.orange,
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
+            const SizedBox(height: 20),
             Row(
               children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: widget.cart.items.isEmpty
-                        ? null
-                        : () async {
-                            final result = await Navigator.push<Map<String, dynamic>>(
-                              context,
-                              MaterialPageRoute<Map<String, dynamic>>(
-                                builder: (BuildContext context) =>
-                                    // Pass pricing through so CheckoutScreen can compute totals
-                                    CheckoutScreen(cart: widget.cart, pricing: widget.pricing),
-                              ),
-                            );
-
-                            if (result != null && mounted) {
-                              final id = result['orderId'] ?? 'Unknown';
-                              final total = result['totalAmount'];
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Order $id placed — £${(total ?? 0).toStringAsFixed(2)}')),
-                              );
-                            }
-                          },
-                    child: const Text('Checkout'),
-                  ),
-                ),
-                const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(),
