@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
+import 'package:provider/provider.dart';
+import 'package:sandwich_shop/services/database_service.dart';
+import 'package:sandwich_shop/models/saved_order.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final Cart cart;
@@ -17,6 +20,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   bool _isProcessing = false;
 
   Future<void> _processPayment() async {
+    // Use the provider-backed cart for final values to ensure consistency.
+    final Cart cart = Provider.of<Cart>(context, listen: false);
+
     setState(() {
       _isProcessing = true;
     });
@@ -28,13 +34,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final int timestamp = currentTime.millisecondsSinceEpoch;
     final String orderId = 'ORD$timestamp';
 
-    final double totalAmount = widget.cart.totalPrice(widget.pricing);
-    final int itemCount = widget.cart.totalQuantity;
+    final SavedOrder savedOrder = SavedOrder(
+      id: 0,
+      orderId: orderId,
+      totalAmount: cart.totalPrice(widget.pricing),
+      itemCount: cart.countOfItems,
+      orderDate: currentTime,
+    );
+
+    final DatabaseService databaseService = DatabaseService();
+    await databaseService.insertOrder(savedOrder);
 
     final Map<String, dynamic> orderConfirmation = {
       'orderId': orderId,
-      'totalAmount': totalAmount,
-      'itemCount': itemCount,
+      'totalAmount': cart.totalPrice(widget.pricing),
+      'itemCount': cart.countOfItems,
       'estimatedTime': '15-20 minutes',
     };
 

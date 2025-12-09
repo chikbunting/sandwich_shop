@@ -9,6 +9,7 @@ import 'package:sandwich_shop/views/about_screen.dart';
 import 'package:sandwich_shop/views/profile_screen.dart';
 import 'package:sandwich_shop/views/main_drawer.dart';
 import 'package:sandwich_shop/views/settings_screen.dart';
+import 'package:sandwich_shop/views/order_history_screen.dart';
 
 // (Sandwich and BreadType are defined in lib/models/sandwich.dart)
 
@@ -203,6 +204,15 @@ class _OrderScreenState extends State<OrderScreen> {
       context,
       MaterialPageRoute<void>(
         builder: (BuildContext context) => const SettingsScreen(),
+      ),
+    );
+  }
+
+  void _navigateToOrderHistory() {
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => const OrderHistoryScreen(),
       ),
     );
   }
@@ -442,6 +452,16 @@ class _OrderScreenState extends State<OrderScreen> {
                   icon: Icons.settings,
                   label: 'Settings',
                   backgroundColor: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: StyledButton(
+                  onPressed: _navigateToOrderHistory,
+                  icon: Icons.history,
+                  label: 'Order History',
+                  backgroundColor: Colors.indigo,
                 ),
               ),
             ],
