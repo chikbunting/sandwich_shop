@@ -5,13 +5,12 @@ import 'package:sandwich_shop/views/app_styles.dart';
 // a screen needs the Drawer, keep using `drawer: const MainDrawer()` in that
 // screen's Scaffold.
 import 'package:sandwich_shop/models/cart.dart';
-import 'package:sandwich_shop/views/cart_screen.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
 
 /// Returns a standardized AppBar used across the app. Pass an optional
 /// [pricing] repository if you want the cart indicator to show a total price.
 PreferredAppBar(BuildContext context, String title,
-    {PricingRepository? pricing}) {
+  {PricingRepository? pricing}) {
   return AppBar(
     leading: SizedBox(
       height: 100,
@@ -24,15 +23,20 @@ PreferredAppBar(BuildContext context, String title,
     ),
     title: Text(title, style: heading1),
     // Keep the drawer (hamburger) behaviour consistent by leaving the drawer
-    // in the Scaffold; we only provide a cart action here.
+    // in the Scaffold; we only provide a cart indicator here. The indicator
+    // does not perform navigation by itself to avoid tight coupling; use the
+    // explicit "View Cart" button in screens to navigate to the cart.
     actions: [CartIndicator(pricing: pricing)],
   );
 }
 
 class CartIndicator extends StatelessWidget {
   final PricingRepository? pricing;
+  final VoidCallback? onTap;
 
-  const CartIndicator({super.key, this.pricing});
+  /// If [onTap] is provided the cart icon will invoke it when tapped. This
+  /// avoids importing concrete screens and keeps this widget reusable.
+  const CartIndicator({super.key, this.pricing, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -55,14 +59,11 @@ class CartIndicator extends StatelessWidget {
                   CircleAvatar(
                     radius: 8,
                     backgroundColor: Colors.red,
-                    child: Text('$qty', style: TextStyle(fontSize: 10, color: Colors.white)),
+                    child: Text('$qty', style: const TextStyle(fontSize: 10, color: Colors.white)),
                   ),
               ],
             ),
-            onPressed: () {
-              final cartObj = Provider.of<Cart>(context, listen: false);
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => CartScreen(cart: cartObj, pricing: repo)));
-            },
+            onPressed: onTap,
           ),
         ],
       ),

@@ -85,6 +85,12 @@ class _CartScreenState extends State<CartScreen> {
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
+            // Show the cart indicator inside the cart screen as requested.
+            // Disable navigation (onTap: null) to avoid pushing the same screen.
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: CartIndicator(pricing: widget.pricing, onTap: null),
+            ),
             if (items.isEmpty)
               Expanded(
                 child: Center(child: Text('Your cart is empty', style: normalText)),
